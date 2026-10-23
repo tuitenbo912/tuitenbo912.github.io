@@ -10,7 +10,7 @@
   --radius: 18px;
 }
 
-* { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
   background: var(--bg);
