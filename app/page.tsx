@@ -102,7 +102,7 @@ export default async function Home() {
         <FactCard facts={facts} />
       </section>
 
-      <section className="section">
+      <section className="section" id="moi">
         <div className="section-head">
           <h2>✨ Mới ra lò</h2>
           <span className="muted">Cập nhật lúc {updated}</span>

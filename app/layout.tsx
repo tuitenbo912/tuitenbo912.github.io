@@ -28,6 +28,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Link href="/#loai" className="hide-sm">
                 Nội dung
               </Link>
+              <Link href="/#moi">Clip mới</Link>
               <Link href="/ve-bo">Về Bô</Link>
               <LivePill />
             </nav>

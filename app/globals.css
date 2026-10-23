@@ -61,6 +61,8 @@ h1, h2, h3 { line-height: 1.15; margin: 0; }
   box-shadow: var(--shadow);
 }
 .section { margin: 40px 0; }
+/* Chừa chỗ cho thanh menu dính trên cùng khi nhảy tới #game, #loai, #moi */
+.section[id] { scroll-margin-top: 84px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
 .section-head h2 { font-size: 30px; }
 .section-head .more { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
