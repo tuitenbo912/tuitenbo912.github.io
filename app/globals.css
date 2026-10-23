@@ -212,3 +212,7 @@ h1, h2, h3 { line-height: 1.15; margin: 0; }
 .more-games summary { list-style: none; }
 .more-games summary::-webkit-details-marker { display: none; }
 .more-games[open] summary { display: none; }
+
+/* banner khi không live: buổi live gần nhất */
+.live-thumb .off-pill { background: var(--paper); color: var(--ink); }
+.last-title { font-size: 21px; line-height: 1.3; }

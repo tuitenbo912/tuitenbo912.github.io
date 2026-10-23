@@ -38,23 +38,36 @@ export default function LiveBanner({ initial, lastStream }: { initial: LiveStatu
     );
   }
 
-  return (
-    <div className="live sticker off">
-      <div className="sleep">💤</div>
-      <div className="live-info">
-        <h2>Rambo đang offline</h2>
-        {lastStream ? (
-          <div>
-            Buổi live gần nhất:{" "}
-            <a href={watch(lastStream.id)} target="_blank" rel="noreferrer">
-              <u>{lastStream.title}</u>
-            </a>{" "}
-            <span className="muted">({lastStream.ago?.replace("Phát trực tiếp ", "")})</span>
-          </div>
-        ) : (
+  if (!lastStream)
+    return (
+      <div className="live sticker off">
+        <div className="sleep">💤</div>
+        <div className="live-info">
+          <h2>Rambo đang không stream</h2>
           <div className="muted">Lên live là chỗ này đỏ rực ngay.</div>
-        )}
+        </div>
       </div>
-    </div>
+    );
+
+  return (
+    <a className="live sticker" href={watch(lastStream.id)} target="_blank" rel="noreferrer">
+      <div className="live-thumb">
+        <img src={lastStream.thumb} alt="" />
+        <span className="live-pill off-pill">💤 OFFLINE</span>
+        {lastStream.duration && <span className="badge">{lastStream.duration}</span>}
+      </div>
+      <div className="live-info">
+        <h2>Rambo đang không stream</h2>
+        <div className="muted">Xem buổi Livestream gần nhất:</div>
+        <h3 className="last-title">{lastStream.title}</h3>
+        <div className="stats">
+          {lastStream.ago && <span className="chip">🕒 {lastStream.ago.replace("Phát trực tiếp ", "")}</span>}
+          {lastStream.views && <span className="chip">👀 {lastStream.views} lượt xem</span>}
+        </div>
+        <span>
+          <span className="btn">▶ Xem lại</span>
+        </span>
+      </div>
+    </a>
   );
 }
