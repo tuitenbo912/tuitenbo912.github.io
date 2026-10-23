@@ -7,10 +7,6 @@ import "./globals.css";
 
 const baloo = Baloo_2({ subsets: ["latin", "vietnamese"], weight: ["500", "600", "700", "800"], variable: "--font-baloo" });
 
-// Trang dựng lúc có người vào (dữ liệu đã được cache trong lib/data.ts), không dựng lúc build:
-// YouTube trục trặc lúc deploy sẽ không làm hỏng bản build.
-export const dynamic = "force-dynamic";
-
 export const metadata: Metadata = {
   title: "Nhà Khoa Học",
   description: "Toàn bộ nội dung của Rambo (TUI TÊN BÔ), chia theo game và kiểu nội dung.",

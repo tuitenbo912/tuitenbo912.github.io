@@ -25,13 +25,13 @@ export function useLive(initial?: LiveStatus | null) {
   useEffect(() => {
     listeners.add(setStatus);
     if (!timer) {
-      if (!current && !initial) poll();
+      if (!current) poll();
       timer = setInterval(poll, POLL_MS);
     }
     return () => {
       listeners.delete(setStatus);
       if (!listeners.size && timer) clearInterval(timer), (timer = null);
     };
-  }, [initial]);
+  }, []);
   return status;
 }

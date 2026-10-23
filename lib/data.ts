@@ -16,7 +16,10 @@ const ARCHIVE_PAGES = 12;
 export type ChannelInfo = Awaited<ReturnType<typeof yt.fetchChannelInfo>>;
 export type LiveStatus = Awaited<ReturnType<typeof yt.fetchLiveStatus>>;
 
-export const getChannel = unstable_cache(
+const _getLive = unstable_cache(() => yt.fetchLiveStatus(), ["live"], { revalidate: LIVE_TTL });
+export const getLive = buildSafe(_getLive, { state: "offline", checkedAt: new Date(0).toISOString() } as LiveStatus);
+
+const _getChannel = unstable_cache(
   async () => {
     const [info, feed] = await Promise.all([yt.fetchChannelInfo(), yt.fetchFeed()]);
     return { ...info, created: feed.created };
@@ -25,7 +28,16 @@ export const getChannel = unstable_cache(
   { revalidate: ARCHIVE_TTL },
 );
 
-export const getLive = unstable_cache(() => yt.fetchLiveStatus(), ["live"], { revalidate: LIVE_TTL });
+export const getChannel = buildSafe(_getChannel, {
+  title: "TUI TÊN BÔ",
+  description: "",
+  avatar: null,
+  banner: null,
+  subscribers: null,
+  videoCount: null,
+  keywords: [] as string[],
+  created: null as string | null,
+});
 
 export function dedupe(videos: Video[]) {
   const seen = new Set<string>();
@@ -92,12 +104,22 @@ const getRecent = unstable_cache(
  * Bản mới nhất từ trang đầu kênh được ghép lên trên bản quét sâu.
  */
 export async function getArchive() {
-  const [deep, recent] = await Promise.all([getDeepArchive(), getFeedHead().then(getRecent)]);
+  const [deep, recent] = await Promise.all([
+    buildSafe(getDeepArchive, { videos: [], shorts: [] })(),
+    buildSafe(() => getFeedHead().then(getRecent), { videos: [], shorts: [], fetchedAt: new Date().toISOString() })(),
+  ]);
   return {
     videos: dedupe([...recent.videos, ...deep.videos]).sort(byNewest),
     shorts: dedupe([...recent.shorts, ...deep.shorts]),
     fetchedAt: recent.fetchedAt,
   };
+}
+
+const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
+
+/** Lúc build, YouTube lỗi thì trả dữ liệu rỗng để bản build không hỏng; trang sẽ tự làm mới sau. */
+function buildSafe<A extends unknown[], R>(fn: (...a: A) => Promise<R>, empty: R) {
+  return (...a: A) => (IS_BUILD ? fn(...a).catch(() => empty) : fn(...a));
 }
 
 export function gameLogo(slug: string) {

@@ -2,6 +2,8 @@ import { PROFILE, TIMELINE, TRIVIA } from "@/content/about";
 import { getArchive, getChannel, getGames } from "@/lib/data";
 import { liveFacts } from "@/lib/facts";
 
+export const revalidate = 300;
+
 export default async function AboutPage() {
   const [channel, { videos, shorts }, games] = await Promise.all([getChannel(), getArchive(), getGames()]);
   const stats = liveFacts({ channel, videos, shorts, games });

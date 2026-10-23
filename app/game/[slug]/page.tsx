@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import VideoGrid from "@/components/VideoGrid";
-import { getGameVideos } from "@/lib/data";
+import { getGameVideos, getGames } from "@/lib/data";
+
+// Dựng sẵn trang của mọi game lúc build, làm mới ngầm mỗi 5 phút. Game mới dựng lúc có người vào.
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  return (await getGames()).map((g) => ({ slug: g.slug }));
+}
 
 export default async function GamePage({ params }: { params: Promise<{ slug: string }> }) {
   const data = await getGameVideos((await params).slug);

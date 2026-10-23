@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import VideoGrid from "@/components/VideoGrid";
+import { CATEGORIES } from "@/lib/catalog";
 import { getCategoryVideos } from "@/lib/data";
+
+export const revalidate = 300;
+
+export function generateStaticParams() {
+  return CATEGORIES.map((c) => ({ slug: c.slug }));
+}
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const data = await getCategoryVideos((await params).slug);
