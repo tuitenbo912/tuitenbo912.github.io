@@ -9,7 +9,7 @@ import { CARD_COLORS, CATEGORIES, SKIP_PLAYLISTS, type Video } from "./catalog";
 // RSS được hỏi mỗi phút, có video mới là lấy ngay trang đầu của kênh ghép vào kho.
 const ARCHIVE_TTL = 1800;
 const FEED_TTL = 60;
-const LIVE_TTL = 45;
+const LIVE_TTL = 30;
 // Số trang cuộn thêm ở tab Video và Trực tiếp (~30 video mỗi trang).
 const ARCHIVE_PAGES = 12;
 
