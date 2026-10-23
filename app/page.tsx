@@ -7,8 +7,6 @@ import { CATEGORIES } from "@/lib/catalog";
 import { getArchive, getCategoryCounts, getChannel, getGames, getLive } from "@/lib/data";
 import { allFacts, liveFacts } from "@/lib/facts";
 
-export const revalidate = 60;
-
 export default async function Home() {
   const [channel, live, archive, games, counts] = await Promise.all([
     getChannel(),

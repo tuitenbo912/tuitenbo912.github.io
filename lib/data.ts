@@ -50,7 +50,9 @@ const getDeepArchive = unstable_cache(
       yt.fetchFeed(),
     ]);
     const fromPlaylists = await Promise.all(
-      playlists.filter((p) => !SKIP_PLAYLISTS.includes(p.title)).map((p) => yt.fetchPlaylistVideos(p.id)),
+      playlists
+        .filter((p) => !SKIP_PLAYLISTS.includes(p.title))
+        .map((p) => yt.fetchPlaylistVideos(p.id).catch(() => [])),
     );
     return {
       videos: withExtras(dedupe([...uploads, ...streams, ...fromPlaylists.flat()] as Video[]), feed.entries),

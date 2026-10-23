@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 import VideoGrid from "@/components/VideoGrid";
 import { getCategoryVideos } from "@/lib/data";
 
-export const revalidate = 600;
-
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const data = await getCategoryVideos((await params).slug);
   if (!data) notFound();

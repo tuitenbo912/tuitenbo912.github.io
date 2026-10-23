@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 import VideoGrid from "@/components/VideoGrid";
 import { getGameVideos } from "@/lib/data";
 
-export const revalidate = 600;
-
 export default async function GamePage({ params }: { params: Promise<{ slug: string }> }) {
   const data = await getGameVideos((await params).slug);
   if (!data) notFound();
