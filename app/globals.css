@@ -198,10 +198,17 @@ h1, h2, h3 { line-height: 1.15; margin: 0; }
 .profile-item { padding: 16px 18px; }
 .profile-value { font-size: 20px; font-weight: 800; line-height: 1.2; margin: 2px 0 4px; }
 .profile-item p { margin: 6px 0 0; font-size: 15px; }
-.timeline { list-style: none; margin: 0; padding: 0 0 0 28px; border-left: 4px dashed var(--ink); display: grid; gap: 18px; }
+/* Đường nét đứt và chấm tròn cùng canh theo một trục: tâm cách mép trái 13px. */
+.timeline { --axis: 13px; --gutter: 40px; position: relative; list-style: none; margin: 0; padding: 0 0 0 var(--gutter); display: grid; gap: 18px; }
+.timeline::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--axis) - 2px);
+  border-left: 4px dashed var(--ink);
+}
 .timeline li { position: relative; padding: 16px 20px; }
 .timeline li::before {
-  content: ""; position: absolute; left: -45px; top: 22px; width: 22px; height: 22px;
+  /* li có viền 3px nên mốc 0 của nó nằm cách mép trái gutter + 3px */
+  content: ""; position: absolute; top: 22px; width: 22px; height: 22px;
+  left: calc(var(--axis) - 11px - var(--gutter) - 3px);
   border-radius: 50%; background: var(--yellow); border: var(--border);
 }
 .timeline .when { font-weight: 800; color: var(--muted); font-size: 14px; text-transform: uppercase; }
