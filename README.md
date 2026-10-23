@@ -15,7 +15,7 @@ Không cần API key. Server đọc HTML công khai của kênh (`ytInitialData`
 
 | Dữ liệu | Nguồn | Làm mới |
 | --- | --- | --- |
-| Kho video (~900 clip) | Tab Video + Trực tiếp (cuộn 12 trang), mọi playlist, Shorts | 10 phút |
+| Kho video (~2.200 clip) | Toàn bộ tab Video, Trực tiếp, Shorts và mọi playlist | Quét lại cả kênh mỗi 6 tiếng; video mới vào qua RSS trong 1–2 phút |
 | Đang live? | Trang `/channel/<id>/live` | 45 giây; trình duyệt hỏi lại mỗi phút |
 | Về Bô | `content/about.ts` (có nguồn) + số liệu tính từ kho video | theo dữ liệu |
 

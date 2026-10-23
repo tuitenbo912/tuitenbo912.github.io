@@ -72,7 +72,7 @@ async function favicon(domain) {
 }
 
 // Danh sách game thật sự có trên kênh (kể cả game mới chưa khai báo).
-const [videos, streams] = await Promise.all([yt.fetchChannelTab("videos", 12), yt.fetchChannelTab("streams", 12)]);
+const [videos, streams] = await Promise.all([yt.fetchChannelTab("videos", 200), yt.fetchChannelTab("streams", 200)]);
 const names = [
   ...new Set([...GAMES.map((g) => g.name), ...[...videos, ...streams].map((v) => classify(v).game).filter(Boolean)]),
 ];
