@@ -28,3 +28,8 @@ Kênh hay gắn nhãn đầu tiêu đề: `(Valorant) …`, `(DailyStream) …`,
 - **Chủ đề:** có thể trùng nhau (Gia đình Bô, Cùng anh Độ & Refund).
 
 Logo game ở `public/logos/<slug>.png|jpg`. Game không có logo sẽ hiện chữ cái đầu.
+
+## Deploy
+
+Web chạy ở https://tuitenbo.vercel.app. Project Vercel đã nối với repo GitHub này:
+push lên `main` là Vercel tự build và đưa lên production, push nhánh khác thì ra bản preview.
