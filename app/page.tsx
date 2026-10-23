@@ -22,7 +22,10 @@ export default async function Home() {
   const facts = allFacts(liveFacts({ channel, videos, shorts, games }));
   const lastStream = videos.find((v) => v.wasLive && !v.isLive);
   const updated = new Date(archive.fetchedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Ho_Chi_Minh" });
-  const formats = CATEGORIES.filter((c) => c.kind !== "theme" && counts[c.slug]);
+  // Shorts đã có mục riêng ở cuối trang; Costream xếp cuối (thứ tự phân loại thì vẫn giữ trong classify.mjs).
+  const formats = CATEGORIES.filter((c) => c.kind === "format" && counts[c.slug]).sort(
+    (a, b) => Number(a.slug === "costream") - Number(b.slug === "costream"),
+  );
   const themes = CATEGORIES.filter((c) => c.kind === "theme" && counts[c.slug]);
 
   return (
