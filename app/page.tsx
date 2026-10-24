@@ -2,6 +2,7 @@ import Link from "next/link";
 import FactCard from "@/components/FactCard";
 import GameCard from "@/components/GameCard";
 import LiveBanner from "@/components/LiveBanner";
+import LocalTime from "@/components/LocalTime";
 import VideoCard from "@/components/VideoCard";
 import { CATEGORIES } from "@/lib/catalog";
 import { getArchive, getCategoryCounts, getChannel, getGames, getLive } from "@/lib/data";
@@ -21,7 +22,6 @@ export default async function Home() {
   const { videos, shorts } = archive;
   const facts = allFacts(liveFacts({ channel, videos, shorts, games }));
   const lastStream = videos.find((v) => v.wasLive && !v.isLive);
-  const updated = new Date(archive.fetchedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Ho_Chi_Minh" });
   // Shorts đã có mục riêng ở cuối trang; Costream xếp cuối (thứ tự phân loại thì vẫn giữ trong classify.mjs).
   const formats = CATEGORIES.filter((c) => c.kind === "format" && counts[c.slug]).sort(
     (a, b) => Number(a.slug === "costream") - Number(b.slug === "costream"),
@@ -109,7 +109,7 @@ export default async function Home() {
       <section className="section" id="moi">
         <div className="section-head">
           <h2>✨ Mới ra lò</h2>
-          <span className="muted">Cập nhật lúc {updated}</span>
+          <span className="muted">Cập nhật lúc <LocalTime iso={archive.checkedAt} /></span>
         </div>
         <div className="grid">
           {videos.slice(0, 12).map((v) => (

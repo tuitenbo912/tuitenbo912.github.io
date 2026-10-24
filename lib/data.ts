@@ -128,9 +128,11 @@ const getDeepArchive = unstable_cache(
 );
 
 /** ID video mới nhất trong RSS: nhẹ, đổi gần như ngay khi kênh đăng video hoặc kết thúc live. */
-const getFeedHead = unstable_cache(async () => (await yt.fetchFeed()).entries[0]?.id ?? "none", ["feed-head"], {
-  revalidate: FEED_TTL,
-});
+const getFeedHead = unstable_cache(
+  async () => ({ id: (await yt.fetchFeed()).entries[0]?.id ?? "none", checkedAt: new Date().toISOString() }),
+  ["feed-head-v2"],
+  { revalidate: FEED_TTL },
+);
 
 /** Trang đầu của kênh (~30 video mới nhất mỗi tab). Lưu theo ID đầu RSS: RSS đổi là lấy lại ngay. */
 const getRecent = unstable_cache(
@@ -157,14 +159,18 @@ const getRecent = unstable_cache(
  * Bản mới nhất từ trang đầu kênh được ghép lên trên bản quét sâu.
  */
 export async function getArchive() {
-  const [deep, recent] = await Promise.all([
+  const now = new Date().toISOString();
+  const [deep, head] = await Promise.all([
     buildSafe(getDeepArchive, { videos: [], shorts: [] })(),
-    buildSafe(() => getFeedHead().then(getRecent), { videos: [], shorts: [], fetchedAt: new Date().toISOString() })(),
+    buildSafe(getFeedHead, { id: "none", checkedAt: now })(),
   ]);
+  const recent = await buildSafe(getRecent, { videos: [], shorts: [], fetchedAt: now })(head.id);
   return {
     videos: dedupe([...recent.videos, ...deep.videos].map(withThumb)).sort(byNewest),
     shorts: dedupe([...recent.shorts, ...deep.shorts].map(withThumb)),
     fetchedAt: recent.fetchedAt,
+    // Lần hỏi RSS gần nhất: chưa có video mới thì danh sách giữ nguyên nhưng web vẫn kiểm tra mỗi phút.
+    checkedAt: head.checkedAt,
   };
 }
 
