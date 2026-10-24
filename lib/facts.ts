@@ -39,6 +39,14 @@ export function liveFacts(opts: {
   if (longest?.duration)
     facts.push({ emoji: "⏱️", text: `Buổi live dài nhất còn trên kênh dài ${longest.duration}: "${longest.title}".`, link: watch(longest.id) });
 
+  // Bỏ cả bản full livestream được up lại thành video thường.
+  const uploads = videos.filter(
+    (v) => !v.wasLive && !v.isLive && v.format !== "livestream" && !/LIVE|TRỰC TIẾP/i.test(v.title),
+  );
+  const longestUpload = [...uploads].sort((a, b) => toSeconds(b.duration) - toSeconds(a.duration))[0];
+  if (longestUpload?.duration)
+    facts.push({ emoji: "🎞️", text: `Video up lên dài nhất (không tính live) dài ${longestUpload.duration}: "${longestUpload.title}".`, link: watch(longestUpload.id) });
+
   const top = [...videos].sort((a, b) => parseViews(b.views) - parseViews(a.views))[0];
   if (top?.views)
     facts.push({ emoji: "🔥", text: `Video nhiều view nhất web đếm được: "${top.title}" với ${top.views} lượt xem.`, link: watch(top.id) });

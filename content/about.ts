@@ -122,7 +122,7 @@ export const TRIVIA: { emoji: string; text: string; sources: Source[] }[] = [
   },
   {
     emoji: "💒",
-    text: "Đám cưới bị hoãn vì Covid, tới cuối năm 2024 mới tổ chức ở TP.HCM, lúc đã có hai cậu con trai. MC là Mimosa, khách mời có anh Độ, ViruSs, Thầy Giáo Ba.",
+    text: "Đám cưới bị hoãn vì Covid, tới cuối năm 2024 mới tổ chức ở TP.HCM, lúc đã có hai cậu con trai.",
     sources: [SRC.wedding],
   },
   {

@@ -101,7 +101,7 @@ const getDeepArchive = unstable_cache(
       shorts: withExtras(shorts as Video[], []).map(withoutThumb),
     };
   },
-  ["archive-deep-v4"],
+  ["archive-deep-v5"],
   { revalidate: DEEP_TTL },
 );
 

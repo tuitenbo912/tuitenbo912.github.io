@@ -14,7 +14,7 @@ export default async function AboutPage() {
         {channel.avatar && <img className="hero-avatar" style={{ marginTop: 0 }} src={channel.avatar} alt="" />}
         <div>
           <h1>Về Bô</h1>
-          <div className="muted">Rambo là ai, từ đâu ra, làm sao gặp anh Độ. Toàn thông tin có thật.</div>
+          <div className="muted">Rambo là ai, từ đâu ra, làm sao gặp anh Độ.</div>
         </div>
       </div>
 
