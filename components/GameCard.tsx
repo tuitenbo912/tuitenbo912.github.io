@@ -12,7 +12,7 @@ const initials = (name: string) =>
 
 export default function GameCard({ g }: { g: Game }) {
   return (
-    <Link href={`/game/${g.slug}`} className="game sticker" style={{ background: g.color }}>
+    <Link href={`/game/${g.slug}`} prefetch={false} className="game sticker" style={{ background: g.color }}>
       <div className="game-cover" style={{ backgroundImage: `url(${g.cover})` }}>
         <span className="game-logo">{g.logo ? <img src={g.logo} alt={`Logo ${g.name}`} loading="lazy" decoding="async" /> : initials(g.name)}</span>
         {g.hot && <span className="hot">Mới chơi</span>}

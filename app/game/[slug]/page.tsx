@@ -4,7 +4,8 @@ import VideoGrid from "@/components/VideoGrid";
 import { getGameVideos, getGames } from "@/lib/data";
 
 // Dựng sẵn trang của mọi game lúc build, làm mới ngầm mỗi 5 phút. Game mới dựng lúc có người vào.
-export const revalidate = 300;
+// Khớp với hạn làm mới dữ liệu trong lib/data.ts (ARCHIVE_TTL).
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   return (await getGames()).map((g) => ({ slug: g.slug }));

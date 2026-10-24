@@ -6,9 +6,9 @@ export async function GET() {
   try {
     return Response.json(await getLive(), {
       headers: {
-        // CDN của Vercel giữ kết quả 30 giây: đông người mở web thì function vẫn chỉ chạy
-        // khoảng 2 lần mỗi phút. Trình duyệt thì luôn hỏi lại CDN để lấy bản mới nhất.
-        "Vercel-CDN-Cache-Control": "max-age=30, stale-while-revalidate=30",
+        // CDN của Vercel giữ kết quả 60 giây: đông người mở web thì function vẫn chỉ chạy
+        // khoảng 1 lần mỗi phút. Trình duyệt thì luôn hỏi lại CDN để lấy bản mới nhất.
+        "Vercel-CDN-Cache-Control": "max-age=60, stale-while-revalidate=60",
         "Cache-Control": "public, max-age=0, must-revalidate",
       },
     });

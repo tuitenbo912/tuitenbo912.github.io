@@ -2,7 +2,8 @@ import { PROFILE, TIMELINE, TRIVIA } from "@/content/about";
 import { getArchive, getChannel, getGames } from "@/lib/data";
 import { liveFacts } from "@/lib/facts";
 
-export const revalidate = 300;
+// Khớp với hạn làm mới dữ liệu trong lib/data.ts (ARCHIVE_TTL).
+export const revalidate = 3600;
 
 export default async function AboutPage() {
   const [channel, { videos, shorts }, games] = await Promise.all([getChannel(), getArchive(), getGames()]);

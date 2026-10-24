@@ -1,17 +1,21 @@
 import fs from "node:fs";
 import path from "node:path";
 import { unstable_cache } from "next/cache";
+import { cache } from "react";
 import * as yt from "./yt-scrape.mjs";
 import { classify, slugify } from "./classify.mjs";
 import { CARD_COLORS, CATEGORIES, SKIP_PLAYLISTS, type Video } from "./catalog";
 import savedChapters from "@/content/chapters.json";
 
 // Quét toàn bộ kênh (mọi video, mọi playlist, ~250 lượt tải) mỗi 6 tiếng. Video mới thì không phải chờ:
-// RSS được hỏi mỗi phút, có video mới là lấy ngay trang đầu của kênh ghép vào kho.
+// trang chủ hỏi RSS mỗi phút, có video mới là lấy ngay trang đầu của kênh ghép vào kho.
+// Lưu ý: trang Next.js tự làm mới theo hạn NGẮN NHẤT trong các dữ liệu nó dùng, nên chỉ trang chủ được
+// dùng dữ liệu 1 phút. Trang game / nội dung / Về Bô (~110 trang) dùng bản làm mới mỗi giờ, nếu không
+// mỗi trang sẽ bị dựng lại mỗi phút và đốt hết hạn mức CPU của Vercel.
 const DEEP_TTL = 6 * 3600;
-const ARCHIVE_TTL = 1800;
+const ARCHIVE_TTL = 3600;
 const FEED_TTL = 60;
-const LIVE_TTL = 30;
+const LIVE_TTL = 60;
 // Giới hạn số trang cuộn: đủ lấy hết kênh hiện tại (~2.400 video) và còn dư cho sau này.
 const ALL_PAGES = 200;
 // Số playlist tải cùng lúc, để YouTube không chặn.
@@ -156,11 +160,12 @@ const getRecent = unstable_cache(
  * Toàn bộ video của kênh, đã gắn game / định dạng / chủ đề, nên số đếm ở mọi trang khớp nhau.
  * Bản mới nhất từ trang đầu kênh được ghép lên trên bản quét sâu.
  */
-export async function getArchive() {
+export const getArchive = cache(async (fresh = false) => {
   const now = new Date().toISOString();
+  // `fresh` (chỉ trang chủ): theo RSS từng phút. Còn lại: trang đầu kênh lấy lại mỗi giờ.
   const [deep, head] = await Promise.all([
     buildSafe(getDeepArchive, { videos: [], shorts: [] })(),
-    buildSafe(getFeedHead, "none")(),
+    fresh ? buildSafe(getFeedHead, "none")() : "hourly",
   ]);
   const recent = await buildSafe(getRecent, { videos: [], shorts: [], fetchedAt: now })(head);
   return {
@@ -168,7 +173,7 @@ export async function getArchive() {
     shorts: dedupe([...recent.shorts, ...deep.shorts].map(withThumb)),
     fetchedAt: recent.fetchedAt,
   };
-}
+});
 
 const IS_BUILD = process.env.NEXT_PHASE === "phase-production-build";
 
@@ -196,8 +201,8 @@ export type Game = {
   hot: boolean;
 };
 
-export async function getGames(): Promise<Game[]> {
-  const { videos } = await getArchive();
+export const getGames = cache(async (fresh = false): Promise<Game[]> => {
+  const { videos } = await getArchive(fresh);
   const groups = new Map<string, Video[]>();
   for (const v of videos) for (const g of v.games ?? []) groups.set(g, [...(groups.get(g) ?? []), v]);
   const monthAgo = Date.now() - 30 * 864e5;
@@ -215,7 +220,7 @@ export async function getGames(): Promise<Game[]> {
       color: CARD_COLORS[i % CARD_COLORS.length],
       hot: (list[0].time ?? 0) > monthAgo,
     }));
-}
+});
 
 export async function getGameVideos(slug: string) {
   const [{ videos }, games] = await Promise.all([getArchive(), getGames()]);
@@ -236,8 +241,8 @@ export async function getCategoryVideos(slug: string) {
   return { cat, videos: list };
 }
 
-export async function getCategoryCounts() {
-  const { videos, shorts } = await getArchive();
+export async function getCategoryCounts(fresh = false) {
+  const { videos, shorts } = await getArchive(fresh);
   const counts: Record<string, number> = { shorts: shorts.length };
   for (const v of videos) {
     for (const f of v.formats ?? []) counts[f] = (counts[f] ?? 0) + 1;

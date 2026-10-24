@@ -4,7 +4,8 @@ import VideoGrid from "@/components/VideoGrid";
 import { CATEGORIES } from "@/lib/catalog";
 import { getCategoryVideos } from "@/lib/data";
 
-export const revalidate = 300;
+// Khớp với hạn làm mới dữ liệu trong lib/data.ts (ARCHIVE_TTL).
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ slug: c.slug }));

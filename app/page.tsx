@@ -14,9 +14,9 @@ export default async function Home() {
   const [channel, live, archive, games, counts] = await Promise.all([
     getChannel(),
     getLive(),
-    getArchive(),
-    getGames(),
-    getCategoryCounts(),
+    getArchive(true),
+    getGames(true),
+    getCategoryCounts(true),
   ]);
   const { videos, shorts } = archive;
   const facts = allFacts(liveFacts({ channel, videos, shorts, games }));
@@ -78,7 +78,7 @@ export default async function Home() {
         </div>
         <div className="types">
           {formats.map((t) => (
-            <Link key={t.slug} href={`/loai/${t.slug}`} className="type sticker" style={{ background: t.color }}>
+            <Link key={t.slug} href={`/loai/${t.slug}`} prefetch={false} className="type sticker" style={{ background: t.color }}>
               <div className="big">{t.emoji}</div>
               <h3>{t.name}</h3>
               <p>{t.blurb}</p>
@@ -91,7 +91,7 @@ export default async function Home() {
         </div>
         <div className="types">
           {themes.map((t) => (
-            <Link key={t.slug} href={`/loai/${t.slug}`} className="type sticker" style={{ background: t.color }}>
+            <Link key={t.slug} href={`/loai/${t.slug}`} prefetch={false} className="type sticker" style={{ background: t.color }}>
               <div className="big">{t.emoji}</div>
               <h3>{t.name}</h3>
               <p>{t.blurb}</p>
