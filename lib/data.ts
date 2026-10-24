@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 import * as yt from "./yt-scrape.mjs";
 import { classify, slugify } from "./classify.mjs";
 import { CARD_COLORS, CATEGORIES, SKIP_PLAYLISTS, type Video } from "./catalog";
+import savedChapters from "@/content/chapters.json";
 
 // Quét toàn bộ kênh (mọi video, mọi playlist, ~250 lượt tải) mỗi 6 tiếng. Video mới thì không phải chờ:
 // RSS được hỏi mỗi phút, có video mới là lấy ngay trang đầu của kênh ghép vào kho.
@@ -17,6 +18,23 @@ const ALL_PAGES = 200;
 const PLAYLIST_BATCH = 6;
 // Playlist tự động gom mọi video, không nói lên nội dung gì.
 const IGNORED_PLAYLISTS = ["Daily Funny Moment"];
+// Danh sách "mọi video tải lên" của kênh: bắt nốt video không hiện ở tab nào.
+const UPLOADS_PLAYLIST = `UU${yt.CHANNEL_ID.slice(2)}`;
+// Số video mới (chưa có trong content/chapters.json) được đọc mô tả mỗi lượt quét.
+const NEW_CHAPTERS_LIMIT = 40;
+
+type Chapters = [number, string][];
+const SAVED = savedChapters as unknown as Record<string, Chapters>;
+
+/** Mốc thời gian trong mô tả: video cũ lấy từ file đã lưu, video mới thì đọc từ YouTube. */
+async function chaptersFor(videos: Video[]) {
+  const map = new Map<string, Chapters>(Object.entries(SAVED));
+  const missing = videos.filter((v) => !map.has(v.id) && !v.isLive).slice(0, NEW_CHAPTERS_LIMIT);
+  await inBatches(missing, PLAYLIST_BATCH, async (v) => {
+    map.set(v.id, (await yt.fetchChapters(v.id).catch(() => [])) as Chapters);
+  });
+  return map;
+}
 
 export type ChannelInfo = Awaited<ReturnType<typeof yt.fetchChannelInfo>>;
 export type LiveStatus = Awaited<ReturnType<typeof yt.fetchLiveStatus>>;
@@ -55,11 +73,12 @@ const withExtras = (
   videos: Video[],
   entries: { id?: string; published?: string }[],
   lists: Map<string, string[]> = new Map(),
+  chapters: Map<string, Chapters> = new Map(),
 ) => {
   const exact = new Map(entries.map((e) => [e.id, e.published ? Date.parse(e.published) : null]));
   return videos
     .map((v) => ({ ...v, time: (!v.isLive && exact.get(v.id)) || v.time }))
-    .map((v) => ({ ...v, ...classify(v, lists.get(v.id) ?? []) }) as Video);
+    .map((v) => ({ ...v, ...classify(v, lists.get(v.id) ?? [], chapters.get(v.id) ?? []) }) as Video);
 };
 
 type Playlist = { id: string; title: string; thumb: string | null; count: number };
@@ -79,12 +98,13 @@ async function inBatches<T, R>(items: T[], size: number, fn: (x: T) => Promise<R
 /** Quét toàn bộ kênh: tab Video, Trực tiếp, Shorts và mọi playlist (kèm tên playlist chứa từng video). */
 const getDeepArchive = unstable_cache(
   async () => {
-    const [uploads, streams, shorts, playlists, feed] = await Promise.all([
+    const [uploads, streams, shorts, playlists, feed, everything] = await Promise.all([
       yt.fetchChannelTab("videos", ALL_PAGES),
       yt.fetchChannelTab("streams", ALL_PAGES),
       yt.fetchShorts(ALL_PAGES),
       yt.fetchPlaylists() as Promise<Playlist[]>,
       yt.fetchFeed(),
+      yt.fetchPlaylistVideos(UPLOADS_PLAYLIST, ALL_PAGES).catch(() => [] as Video[]),
     ]);
     const usable = playlists.filter((p) => !SKIP_PLAYLISTS.includes(p.title) && !IGNORED_PLAYLISTS.includes(p.title));
     const fromPlaylists = await inBatches(usable, PLAYLIST_BATCH, (p) =>
@@ -94,14 +114,16 @@ const getDeepArchive = unstable_cache(
     fromPlaylists.forEach((videos, i) => {
       for (const v of videos) lists.set(v.id, [...(lists.get(v.id) ?? []), usable[i].title]);
     });
+    const shortIds = new Set((shorts as Video[]).map((v) => v.id));
+    const all = dedupe([...uploads, ...streams, ...fromPlaylists.flat(), ...everything] as Video[]).filter(
+      (v) => !shortIds.has(v.id),
+    );
     return {
-      videos: withExtras(dedupe([...uploads, ...streams, ...fromPlaylists.flat()] as Video[]), feed.entries, lists).map(
-        withoutThumb,
-      ),
+      videos: withExtras(all, feed.entries, lists, await chaptersFor(all)).map(withoutThumb),
       shorts: withExtras(shorts as Video[], []).map(withoutThumb),
     };
   },
-  ["archive-deep-v5"],
+  ["archive-deep-v6"],
   { revalidate: DEEP_TTL },
 );
 
@@ -119,13 +141,14 @@ const getRecent = unstable_cache(
       yt.fetchShorts(),
       yt.fetchFeed(),
     ]);
+    const videos = dedupe([...uploads, ...streams] as Video[]);
     return {
-      videos: withExtras(dedupe([...uploads, ...streams] as Video[]), feed.entries),
+      videos: withExtras(videos, feed.entries, new Map(), await chaptersFor(videos)),
       shorts: withExtras(shorts as Video[], []),
       fetchedAt: new Date().toISOString(),
     };
   },
-  ["archive-recent-v2"],
+  ["archive-recent-v3"],
   { revalidate: ARCHIVE_TTL },
 );
 
@@ -174,7 +197,7 @@ export type Game = {
 export async function getGames(): Promise<Game[]> {
   const { videos } = await getArchive();
   const groups = new Map<string, Video[]>();
-  for (const v of videos) if (v.game) groups.set(v.game, [...(groups.get(v.game) ?? []), v]);
+  for (const v of videos) for (const g of v.games ?? []) groups.set(g, [...(groups.get(g) ?? []), v]);
   const monthAgo = Date.now() - 30 * 864e5;
   return [...groups.entries()]
     .map(([name, list]) => ({ name, list, slug: slugify(name) }))
@@ -195,7 +218,7 @@ export async function getGames(): Promise<Game[]> {
 export async function getGameVideos(slug: string) {
   const [{ videos }, games] = await Promise.all([getArchive(), getGames()]);
   const game = games.find((g) => g.slug === slug);
-  return game ? { game, videos: videos.filter((v) => v.game === game.name) } : null;
+  return game ? { game, videos: videos.filter((v) => v.games?.includes(game.name)) } : null;
 }
 
 export async function getCategoryVideos(slug: string) {
@@ -206,7 +229,7 @@ export async function getCategoryVideos(slug: string) {
     cat.kind === "shorts"
       ? shorts
       : cat.kind === "format"
-        ? videos.filter((v) => v.format === slug)
+        ? videos.filter((v) => v.formats?.includes(slug))
         : videos.filter((v) => v.themes?.includes(slug));
   return { cat, videos: list };
 }
@@ -215,7 +238,7 @@ export async function getCategoryCounts() {
   const { videos, shorts } = await getArchive();
   const counts: Record<string, number> = { shorts: shorts.length };
   for (const v of videos) {
-    if (v.format) counts[v.format] = (counts[v.format] ?? 0) + 1;
+    for (const f of v.formats ?? []) counts[f] = (counts[f] ?? 0) + 1;
     for (const t of v.themes ?? []) counts[t] = (counts[t] ?? 0) + 1;
   }
   return counts;

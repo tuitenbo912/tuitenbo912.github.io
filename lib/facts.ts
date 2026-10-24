@@ -82,7 +82,7 @@ export function liveFacts(opts: {
     });
 
   const viewsByGame = new Map<string, number>();
-  for (const v of videos) if (v.game) viewsByGame.set(v.game, (viewsByGame.get(v.game) ?? 0) + parseViews(v.views));
+  for (const v of videos) for (const g of v.games ?? []) viewsByGame.set(g, (viewsByGame.get(g) ?? 0) + parseViews(v.views));
   const topGame = [...viewsByGame].sort((a, b) => b[1] - a[1])[0];
   if (topGame)
     facts.push({

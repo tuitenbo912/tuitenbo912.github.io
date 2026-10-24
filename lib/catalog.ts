@@ -11,14 +11,17 @@ export type Video = {
   isLive: boolean;
   wasLive: boolean;
   isShort?: boolean;
+  /** Game chính (nhãn tiêu đề) và mọi game có trong video, kể cả từ mốc thời gian mô tả. */
   game?: string | null;
+  games?: string[];
   format?: string | null;
+  formats?: string[];
   themes?: string[];
 };
 
 export type Category = { slug: string; name: string; emoji: string; blurb: string; color: string };
 
-/** Định dạng (mỗi video một loại) + chủ đề (có thể trùng) + Shorts. */
+/** Định dạng (buổi live có mốc thời gian có thể thuộc nhiều loại) + chủ đề (có thể trùng) + Shorts. */
 export const CATEGORIES: (Category & { kind: "format" | "theme" | "shorts" })[] = [
   ...FORMATS.map(({ slug, name, emoji, blurb, color }) => ({ slug, name, emoji, blurb, color, kind: "format" as const })),
   { ...SHORTS_FORMAT, kind: "shorts" as const },

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start -p 3010",
     "check:yt": "node scripts/check-youtube.mjs",
-    "logos": "node scripts/fetch-logos.mjs"
+    "logos": "node scripts/fetch-logos.mjs",
+    "chapters": "node scripts/fetch-chapters.mjs"
   },
   "dependencies": {
     "next": "^15.5.28",
