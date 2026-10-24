@@ -123,7 +123,7 @@ const getDeepArchive = unstable_cache(
       shorts: withExtras(shorts as Video[], []).map(withoutThumb),
     };
   },
-  ["archive-deep-v6"],
+  ["archive-deep-v7"],
   { revalidate: DEEP_TTL },
 );
 
@@ -150,7 +150,7 @@ const getRecent = unstable_cache(
       fetchedAt: new Date().toISOString(),
     };
   },
-  ["archive-recent-v3"],
+  ["archive-recent-v4"],
   { revalidate: ARCHIVE_TTL },
 );
 
