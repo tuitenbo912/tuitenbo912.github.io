@@ -99,16 +99,10 @@ export const TRIVIA: { emoji: string; text: string; sources: Source[] }[] = [
     text: 'Hồi nhỏ hay nhại giọng Châu Tinh Trì khi chơi với bạn bè, nên giờ còn có biệt danh "Châu Tinh Bô".',
     sources: [SRC.ttvh, SRC.channel],
   },
-  { emoji: "👨‍👦", text: 'Trên stream hay gọi anh Độ Mixi là "người bố".', sources: [SRC.kenh14] },
   { emoji: "🏠", text: "Đã xây cho mẹ một căn nhà lớn và mua tặng mẹ một chiếc Mercedes.", sources: [SRC.ttvh] },
   {
     emoji: "🐱",
-    text: 'Trong tiêu đề video, vợ được gọi là "bà xã Mèo Méo" hay "Trân mập", còn Rambo tự xưng là "ông xã Bồ Bố".',
-    sources: [SRC.channel],
-  },
-  {
-    emoji: "💸",
-    text: 'Fan gọi là "Refund Rambo" theo tên đội, còn tên kênh thì tự giới thiệu luôn: Tui tên Bô.',
+    text: "Vợ là bà xã Mèo Méo hay còn gọi là Trân Mặp",
     sources: [SRC.channel],
   },
   {
@@ -145,10 +139,5 @@ export const TRIVIA: { emoji: string; text: string; sources: Source[] }[] = [
     emoji: "🌾",
     text: "Giọng miền Tây chính hiệu, cũng là một lý do người xem mê. Lúc biết con là trai, Rambo mong con lớn lên cũng phải đúng chuẩn miền Tây.",
     sources: [SRC.vgtBaby],
-  },
-  {
-    emoji: "🔬",
-    text: 'Trong phần từ khoá của kênh có cả "Phùng Khoa Học". Nên web này tên là Nhà Khoa Học.',
-    sources: [SRC.channel],
   },
 ];
