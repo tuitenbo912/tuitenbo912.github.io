@@ -35,13 +35,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </header>
         <main className="wrap">{children}</main>
-        <footer className="footer wrap">
-          Web fan làm, không phải kênh chính thức. Mọi video thuộc về{" "}
-          <a href="https://www.youtube.com/@TUITENBO" target="_blank" rel="noreferrer">
-            <u>TUI TÊN BÔ</u>
-          </a>
-          .
-        </footer>
       </body>
     </html>
   );
